@@ -23,6 +23,28 @@ async function getRandomNumber() {
     }
 }
 
+// Funcion para subir un archivo a Google Drive
+async function uploadFileToDrive(filename, folderId) {
+    const filePath = path.join(__dirname, filename);
+    try {
+        const res = await driveService.files.create({
+            requestBody: {
+                name: filename,
+                mimeType: 'text/plain',
+                parents: [folderId] // ID de la carpeta donde se subira el archivo
+            },
+            media: {
+                mimeType: 'text/plain',
+                body: fs.createReadStream(filePath),
+            },
+        });
+        console.log(`Archivo subido con ID: ${res.data.id}`);
+    } catch (error) {
+        console.error('Error al subir el archivo:', error);
+        throw error;
+    }
+}
+
 // Flujo principal de ejecucion
 (async () => {
     try {
@@ -32,7 +54,15 @@ async function getRandomNumber() {
 
         // Crear un archivo temporal con ese numero como nombre
         fs.writeFileSync(filename, 'Este es el contenido del archivo. -> 1284719 -> 1307419');
-        
+
+        // ID de tu carpeta en Google Drive
+        const folderId = '16y8ne-MKYdK-WExujd6w_zF_mMnF6pai';
+
+        // Subir el archivo a Google Drive en la carpeta especificada
+        await uploadFileToDrive(filename, folderId);
+
+        // Limpiar el archivo local si se desea
+        fs.unlinkSync(filename);
     } catch (error) {
         console.error('Error en el flujo principal:', error);
     }
